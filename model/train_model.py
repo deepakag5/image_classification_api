@@ -106,7 +106,24 @@ def train(model, device, train_loader, optimizer, criterion, epoch):
     # plt.plot(loss_list)
     # plt.show()
 
+# Validate the model
 
+def validate(model, device, validate_loader, criterion, epoch):
+    model.eval()
+    loss_list = []
+    with torch.no_grad():
+        for i, (images, labels) in enumerate(validate_loader):
+            images = images.to(device)
+            labels = labels.to(device)
+            labels = labels.long()
+            labels = labels.view(-1, len(labels))[0]
+            loss = criterion(outputs, labels)
+            loss_list.append(loss.item())
+            if i % 10 == 0:
+                print('Validation Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    epoch, i * len(images), len(validate_loader.dataset),
+                           100. * i / len(validate_loader), loss.item()))
 
+        return loss_list
 
 
