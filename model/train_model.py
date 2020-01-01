@@ -168,3 +168,28 @@ def main():
                 label_data.append(y_values)
                 imagecount = imagecount + count
 
+    x_data = np.array(x_data, dtype='float32')
+    label_data = np.array(label_data)
+    label_data = label_data.reshape(imagecount, 1)  # Reshape to be the correct size
+
+    # check the shape of train data
+    print("Total Data shape", x_data.shape)
+    print("Total labels shape", label_data)
+
+    # divide the data into train, validation and test
+    x_train, x_valid_test, y_train, y_valid_test = train_test_split(x_data, label_data, test_size=0.3)
+    x_validate, x_test, y_validate, y_test = train_test_split(x_valid_test, y_valid_test, test_size=0.5)
+
+    # check the shape of train data
+    print("Train Data shape=", x_train.shape)
+    print("Train Labels shape=", y_train.shape)
+
+    # check the shape of validation data
+    print("Validation data shape=", x_validate.shape)
+    print("Validation labels shape=", y_validate.shape)
+
+    # check the shape of test data
+    print("Test data shape=", x_test.shape)
+    print("Test data label=", y_test.shape)
+
+
