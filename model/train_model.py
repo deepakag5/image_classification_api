@@ -74,3 +74,39 @@ class CNN(nn.Module):
         out = out.view(out.size(0), -1)
         out = self.classifier(out)
         return out
+
+
+
+# Train the Model
+
+def train(model, device, train_loader, optimizer, criterion, epoch):
+    model.train()
+    loss_list = []
+    for i, (images, labels) in enumerate(train_loader):
+        images = images.to(device)
+        labels = labels.to(device)
+        labels = labels.long()
+        labels = labels.view(-1, len(labels))[0]
+        optimizer.zero_grad()
+        outputs = model(images)
+        outputs = outputs.float()
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        loss_list.append(loss.item())
+        if i % 10 == 0:
+            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                epoch, i * len(images), len(train_loader.dataset),
+                       100. * i / len(train_loader), loss.item()))
+    # Save the model checkpoint
+    torch.save(model.state_dict(), '../model/model_trained.pth')
+
+    return loss_list
+
+    # plt.plot(loss_list)
+    # plt.show()
+
+
+
+
+
