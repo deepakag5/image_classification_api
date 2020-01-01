@@ -117,6 +117,8 @@ def validate(model, device, validate_loader, criterion, epoch):
             labels = labels.to(device)
             labels = labels.long()
             labels = labels.view(-1, len(labels))[0]
+            outputs = model(images)
+            outputs = outputs.float()
             loss = criterion(outputs, labels)
             loss_list.append(loss.item())
             if i % 10 == 0:
