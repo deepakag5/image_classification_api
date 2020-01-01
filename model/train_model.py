@@ -129,3 +129,42 @@ def validate(model, device, validate_loader, criterion, epoch):
         return loss_list
 
 
+def main():
+    # specify device and choose gpu if it's available
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print('Using device:', device)
+
+    lookup = dict()
+    reverselookup = dict()
+    count = 0
+    for j in os.listdir('./data/leapGestRecog/00/'):
+        if not j.startswith('.'):  # If running this code locally, this is to
+            # ensure you aren't reading in hidden folders
+            lookup[j] = count
+            reverselookup[count] = j
+            count = count + 1
+    print(lookup)
+
+    classes = (lookup.keys())
+
+    x_data = []
+    label_data = []
+    imagecount = 0  # total Image count
+    for i in range(0, 10):  # Loop over the ten top-level folders
+        for j in os.listdir('./data/leapGestRecog/0' + str(i) + '/'):
+            if not j.startswith('.'):  # Again avoid hidden folders
+                count = 0  # To tally images of a given gesture
+                # loop over the images
+                # read in and convert to greyscale
+                for k in os.listdir('./data/leapGestRecog/0' + str(i) + '/' + j + '/'):
+                    img = Image.open('./data/leapGestRecog/0' +
+                                     str(i) + '/' + j + '/' + k).convert('L')
+                    img = img.resize((320, 120))
+                    arr = np.array(img)
+                    x_data.append(arr)
+                    count = count + 1
+
+                y_values = np.full((count, 1), lookup[j])
+                label_data.append(y_values)
+                imagecount = imagecount + count
+
