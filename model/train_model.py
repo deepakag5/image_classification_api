@@ -199,4 +199,65 @@ def main():
     print("Test data shape=", x_test.shape)
     print("Test data label=", y_test.shape)
 
+    batch_size_list = [64]
 
+    results = {}
+    resultsDF = []
+    f1DF = []
+
+    for BATCH_SIZE in batch_size_list:
+
+        # specify the transformation
+        transform = transforms.Compose(
+            [transforms.ToPILImage(), transforms.ToTensor(), transforms.Normalize(mean=(0.5,), std=(0.5,))])
+        # perform the pre-processing on train data
+        data_train = DatasetProcessing(x_train, y_train, transform)
+        # load the train data
+        train_loader = torch.utils.data.DataLoader(data_train, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+
+        # specify the transformation
+        transform = transforms.Compose(
+            [transforms.ToPILImage(), transforms.ToTensor(), transforms.Normalize(mean=(0.5,), std=(0.5,))])
+        data_validate = DatasetProcessing(x_validate, y_validate, transform)
+        validate_loader = torch.utils.data.DataLoader(data_validate, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+
+        # specify the transformation
+        transform = transforms.Compose(
+            [transforms.ToPILImage(), transforms.ToTensor(), transforms.Normalize(mean=(0.5,), std=(0.5,))])
+        data_test = DatasetProcessing(x_test, y_test, transform)
+        test_loader = torch.utils.data.DataLoader(data_test, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+
+        # specify the number of epochs and learning rate
+        learning_rate_list = [0.001]
+        optimizer_functions_list = ['Adam']
+
+        for LEARNING_RATE in learning_rate_list:
+
+            for OPTIMIZER in optimizer_functions_list:
+                # create instance of model
+                model = CNN().to(device)
+                criterion = nn.CrossEntropyLoss()
+
+                if OPTIMIZER == 'SGD':
+                    optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
+                elif OPTIMIZER == 'ASGD':
+                    optimizer = torch.optim.ASGD(model.parameters(), lr=LEARNING_RATE)
+
+                number_epochs_list = [2]
+
+                for NUM_EPOCHS in number_epochs_list:
+                    training_loss = []
+                    validation_loss = []
+                    mean_training_loss = []
+                    mean_validation_loss = []
+
+                    for epoch in range(1, NUM_EPOCHS + 1):
+                        start = timeit.default_timer()
+                        train_loss = train(model, device, train_loader, optimizer, criterion, epoch)
+                        stop = timeit.default_timer()
+                        val_loss = validate(model, device, validate_loader, criterion, epoch)
+                        training_loss = training_loss + train_loss
+                        validation_loss = validation_loss + val_loss
+                        mean_training_loss = mean_training_loss + [np.mean(train_loss)]
+                        mean_validation_loss = mean_validation_loss + [np.mean(val_loss)]
+                        accuracy, testing_loss, cm, cm1 = test(model, device, test_loader, criterion, epoch)
