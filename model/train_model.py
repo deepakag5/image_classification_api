@@ -199,6 +199,7 @@ def main():
     print("Test data shape=", x_test.shape)
     print("Test data label=", y_test.shape)
 
+
     batch_size_list = [64]
 
     results = {}
@@ -242,6 +243,14 @@ def main():
                     optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
                 elif OPTIMIZER == 'ASGD':
                     optimizer = torch.optim.ASGD(model.parameters(), lr=LEARNING_RATE)
+                elif OPTIMIZER == 'Adam':
+                    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+                elif OPTIMIZER == 'Adagrad':
+                    optimizer = torch.optim.Adagrad(model.parameters(), lr=LEARNING_RATE)
+                elif OPTIMIZER == 'Adadelta':
+                    optimizer = torch.optim.Adadelta(model.parameters(), lr=LEARNING_RATE)
+                elif OPTIMIZER == 'RMSProp':
+                    optimizer = torch.optim.RMSprop(model.parameters(), lr=LEARNING_RATE)
 
                 number_epochs_list = [2]
 
@@ -261,3 +270,4 @@ def main():
                         mean_training_loss = mean_training_loss + [np.mean(train_loss)]
                         mean_validation_loss = mean_validation_loss + [np.mean(val_loss)]
                         accuracy, testing_loss, cm, cm1 = test(model, device, test_loader, criterion, epoch)
+
