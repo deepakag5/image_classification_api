@@ -328,3 +328,29 @@ def main():
                     for fig in range(1, plt.gcf().number + 1):  ## will open an empty extra figure
                         pdf.savefig(fig)
                     pdf.close()
+
+                    df = pd.DataFrame(list(results.items()))
+                    df_parameters = pd.DataFrame(df.iloc[:, 0].tolist(),
+                                                 columns=['batch_size', 'learning_rate', 'optimizer_method',
+                                                          'num_epochs'])
+                    df_obs = pd.DataFrame(df.iloc[:, 1].tolist(), columns=['time', 'accuracy'])
+                    df_final = pd.concat([df_parameters, df_obs], axis=1)
+
+                    df_final.to_csv("df_final.csv")
+
+                    df_f1 = pd.DataFrame(list(cm1.F1.items()), columns=['labels', 'f1_score'])
+
+                    resultsDF.append(df_final)
+                    f1DF.append(df_f1)
+
+                df_results = pd.concat(resultsDF)
+
+                df_results = df_results.drop_duplicates(keep='first', inplace=False)
+                df_results.to_csv("results.csv")
+
+                df_f1_results = pd.concat(f1DF)
+                df_f1_results.to_csv("f1_score_results.csv")
+
+
+if __name__ == '__main__':
+    main()
