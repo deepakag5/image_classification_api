@@ -23,6 +23,11 @@ from PIL import Image  # For handling the images
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 
+# added code to unzip the data files in data folder
+
+if (not os.path.exists("./data")):
+    os.system("mkdir data")
+os.system("tar -xf  leapGestRecog.tar.gz -C ./data")
 
 #specify the class for preprocessing the data
 class DatasetProcessing(Dataset):
