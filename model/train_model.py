@@ -271,3 +271,25 @@ def main():
                         mean_validation_loss = mean_validation_loss + [np.mean(val_loss)]
                         accuracy, testing_loss, cm, cm1 = test(model, device, test_loader, criterion, epoch)
 
+                    fig1 = plt.figure(figsize=(12, 8))
+                    plt.plot(training_loss)
+                    plt.plot(validation_loss)
+                    plt.xlabel("batch samples", fontsize=20)
+                    plt.ylabel("loss", fontsize=20)
+                    plt.legend(['training loss', 'validation loss'], loc='upper right', fontsize=20)
+                    plt.title("batch-wise training and validation loss for batch size=" + str(BATCH_SIZE)
+                              + ", lr=" + str(LEARNING_RATE) +
+                              ", optimizer=" + str(OPTIMIZER) + ", num_epochs=" + str(NUM_EPOCHS), fontsize=15)
+                    # plt.show()
+                    fig1.savefig("batchwise_training_validation_loss_" + str(BATCH_SIZE) + "_" + str(LEARNING_RATE) +
+                                 "_" + str(OPTIMIZER) + "_" + str(NUM_EPOCHS) + ".png")
+
+                    results[(BATCH_SIZE, LEARNING_RATE, OPTIMIZER, NUM_EPOCHS)] = (
+                        round(stop - start, 2), round(accuracy, 2))
+
+                    print(results)
+
+                    pdf = matplotlib.backends.backend_pdf.PdfPages("output.pdf")
+                    for fig in range(1, plt.gcf().number + 1):  ## will open an empty extra figure
+                        pdf.savefig(fig)
+                    pdf.close()
