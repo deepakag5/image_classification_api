@@ -284,6 +284,41 @@ def main():
                     fig1.savefig("batchwise_training_validation_loss_" + str(BATCH_SIZE) + "_" + str(LEARNING_RATE) +
                                  "_" + str(OPTIMIZER) + "_" + str(NUM_EPOCHS) + ".png")
 
+                    fig2 = plt.figure(figsize=(12, 8))
+                    plt.plot(mean_training_loss)
+                    plt.plot(mean_validation_loss)
+                    plt.xlabel("epochs", fontsize=20)
+                    plt.ylabel("mean loss", fontsize=20)
+                    plt.legend(['mean training loss', 'mean validation loss'], loc='upper right', fontsize=20)
+                    # plt.show()
+                    plt.title("epoch-wise mean training and validation loss for batch size=" + str(BATCH_SIZE) +
+                              ", lr=" + str(LEARNING_RATE) +
+                              ", optimizer=" + str(OPTIMIZER) + ", num_epochs=" + str(NUM_EPOCHS), fontsize=15)
+                    fig2.savefig(
+                        "epochwise_mean_training_validation_loss_" + str(BATCH_SIZE) + "_" + str(LEARNING_RATE) +
+                        "_" + str(OPTIMIZER) + "_" + str(NUM_EPOCHS) + ".png")
+
+                    fig3 = plt.figure(figsize=(12, 8))
+                    plt.plot(training_loss)
+                    plt.xlabel("batch samples", fontsize=20)
+                    plt.ylabel("loss", fontsize=20)
+                    plt.legend(['testing loss'], loc='upper right', fontsize=20)
+                    plt.title("testing loss for batch size=" + str(BATCH_SIZE)
+                              + ", lr=" + str(LEARNING_RATE) +
+                              ", optimizer=" + str(OPTIMIZER) + ", num_epochs=" + str(NUM_EPOCHS), fontsize=15)
+                    # plt.show()
+                    fig3.savefig("testing_loss_" + str(BATCH_SIZE) + "_" + str(LEARNING_RATE) +
+                                 "_" + str(OPTIMIZER) + "_" + str(NUM_EPOCHS) + ".png")
+
+                    fig4, ax = plot_confusion_matrix(conf_mat=cm)
+                    # plt.show()
+
+                    print(type(cm1.F1))
+                    print("f1", cm1.F1)
+
+                    fig4.savefig("confusion_matrix_" + str(BATCH_SIZE) + "_" + str(LEARNING_RATE) +
+                                 "_" + str(OPTIMIZER) + "_" + str(NUM_EPOCHS) + ".png")
+
                     results[(BATCH_SIZE, LEARNING_RATE, OPTIMIZER, NUM_EPOCHS)] = (
                         round(stop - start, 2), round(accuracy, 2))
 
