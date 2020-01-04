@@ -1,5 +1,5 @@
 # image_classification_api
-Image classification using Deep Learning, Python, Pytorch, AWS, Docker
+Image classification using Deep Learning, Python, Pytorch, AWS, REST-API, Docker
 
 
 ## Below is the scalable architecture used in the project -
