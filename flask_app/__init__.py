@@ -2,6 +2,7 @@ import os
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 import boto3
+import shutil
 
 UPLOAD_FOLDER = '/home/ubuntu'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -36,3 +37,34 @@ def upload_file():
             response = s3.Bucket(bucket).put_object(Key=filename, Body=data)
             return redirect(url_for('upload_file', filename=filename))
     return render_template('index.html')
+
+
+@app.route('/output')
+def show_prediction():
+    download_data()
+    download_path = '/home/ubuntu/image_classification_project/flask_app/static'
+    files = [f for f in os.listdir(download_path) if os.path.isfile(os.path.join(download_path, f))]
+    print(files)
+    return render_template(
+        'results.html', results=files)
+
+
+def download_data():
+    bucket = 'flaskdataml2output'
+    s3_client = boto3.client('s3')
+    s3 = boto3.resource('s3')
+    download_path = '/home/ubuntu/image_classification_project/flask_app/static'
+    if (os.path.isdir(download_path)):
+        shutil.rmtree(download_path)
+    os.mkdir(download_path)
+    download_path = download_path
+    list1 = s3_client.list_objects(Bucket=bucket)['Contents']
+    for key in list1:
+        s3.Bucket(bucket).download_file(key['Key'], download_path + "/" + key['Key'])
+        # s3.Bucket(bucket).download_file(key['Key1'], download_path+"/"+key['Key1'])
+
+
+if __name__ == "__main__":
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.debug = True
+    app.run(host="0.0.0.0", port=80)
