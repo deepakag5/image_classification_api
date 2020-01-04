@@ -2,8 +2,6 @@
 import boto3
 import time
 import subprocess
-import os
-import traceback
 
 
 def get_message_from_queue(Queue_url, sqs):
