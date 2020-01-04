@@ -32,7 +32,7 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             s3 = boto3.resource('s3')
-            bucket = 'flaskdataml2'
+            bucket = 'flaskdataimage'
             data = open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'rb')
             response = s3.Bucket(bucket).put_object(Key=filename, Body=data)
             return redirect(url_for('upload_file', filename=filename))
@@ -50,7 +50,7 @@ def show_prediction():
 
 
 def download_data():
-    bucket = 'flaskdataml2output'
+    bucket = 'flaskdataimageoutput'
     s3_client = boto3.client('s3')
     s3 = boto3.resource('s3')
     download_path = '/home/ubuntu/image_classification_project/flask_app/static'

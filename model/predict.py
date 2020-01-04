@@ -1,10 +1,14 @@
 # Loading required packages
-import numpy as np
+import numpy as np  # We'll be storing our data as numpy arrays
+from PIL import Image, ImageOps, ImageDraw, ImageFont  # For handling the images
 
 # importing torch packages
 import torch
-from torch.utils.data import Dataset
+from torch.autograd import Variable
 import torch.nn as nn
+import torchvision.transforms as transforms
+from torch.utils.data import Dataset, DataLoader
+import boto3
 
 
 # This class to transform the data, so that it can be loaded to test Loader
@@ -66,3 +70,55 @@ class CNN(nn.Module):
         out = out.view(out.size(0), -1)
         out = self.classifier(out)
         return out
+
+
+if __name__ == "__main__":
+
+    # code to read message from queue needs to be added
+    class_dict = {9: 'palm', 7: 'L shape', 8: 'fist', 4: 'fist_moved', 6: 'thumb', 2: 'index_finger', 0: 'ok',
+                  3: 'palm_moved', 5: 'C shape', 1: 'Down'}
+    s3_client = boto3.resource('s3',
+                               aws_access_key_id='',
+                               aws_secret_access_key='',
+                               region_name="us-east-1")
+
+    key, bucket = open("/tmp/message_data.txt", "r").readline().split(";")
+
+    download_path = '/tmp/{}'.format(key)
+    s3_client.Bucket(bucket).download_file(key, download_path)
+    IMG_URL_LOCAL = download_path
+
+    img_array = []
+    # Read in and convert to greyscale
+    img = Image.open(IMG_URL_LOCAL).convert('L')
+    img.show()
+
+    img = img.resize((320, 120))
+    arr = np.array(img)
+    img_array.append(arr)
+    img_array1 = np.array(img_array, dtype='float32')
+
+    model_test = CNN()
+    model_test.load_state_dict(torch.load('/home/model/model_trained_cpu.pth'))
+
+    transform = transforms.Compose(
+        [transforms.ToPILImage(), transforms.ToTensor(), transforms.Normalize(mean=(0.5,), std=(0.5,))])
+    dset_test = DatasetProcessing(img_array1, np.array([[1]]), transform)
+    test_loader = torch.utils.data.DataLoader(dset_test, batch_size=1, shuffle=False,
+                                              num_workers=1)  # meaning of num_workers
+
+    for i, (images, label) in enumerate(test_loader):
+        images = Variable(images)
+        outputs = model_test(images)
+        _, predicted = torch.max(outputs.data, 1)
+        pred_class = class_dict[predicted.cpu().numpy()[0]]
+
+    # adding label to image
+    print(pred_class)
+    img = Image.open(IMG_URL_LOCAL)
+    bimg = ImageOps.expand(img, border=20)
+    draw = ImageDraw.Draw(bimg)
+    draw.text((320, 20), pred_class, fill=(255))
+    bimg.save('/tmp/sample.jpg')
+    bucket1 = 'flaskdataimageoutput'
+    s3_client.Bucket(bucket1).upload_file('/tmp/sample.jpg', Key=key + "-" + pred_class + ".jpg")
